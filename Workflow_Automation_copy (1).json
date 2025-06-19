@@ -1,0 +1,691 @@
+{
+  "name": "Workflow Automation copy",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Drive Eligibility Application",
+        "formDescription": "Please ensure this form is updated for the project submission.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name of the student",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Mobile Number",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email ID",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "College Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Upload your resume",
+              "fieldType": "file",
+              "acceptFileTypes": ".pdf, .doc, .docx",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Resume Link",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "LinkedIN URL",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "GitHub URL",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -980,
+        -1220
+      ],
+      "id": "d72ce48c-8ac5-40c8-9e4f-a337bb0ce498",
+      "name": "On form submission",
+      "webhookId": "f8232743-e36a-4035-b911-b41148f608e7"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Upload_your_resume",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -760,
+        -1220
+      ],
+      "id": "7301a418-1180-488c-94d3-ce070c0b984a",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "49f14522-bda1-4c9c-a0a3-acad4c9616de",
+              "name": "Job Description",
+              "value": "Job Title: Generative AI (GenAI) Engineer  Job Description: We are looking for a skilled Generative AI Engineer to design, develop, and deploy AI models for text, image, or speech generation. You will work on fine-tuning large language models (LLMs), integrating APIs, and building intelligent applications using frameworks like LangChain, OpenAI, or similar.  Key Skills:  Python, NLP, Machine Learning  Experience with LLMs (e.g., GPT, Gemini)  Prompt engineering and fine-tuning  Familiarity with tools like Hugging Face, LangChain, or OpenAI APIs",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -320,
+        -1220
+      ],
+      "id": "55602476-e547-4da3-9b23-a960fb1736d3",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash-001",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        364,
+        -1000
+      ],
+      "id": "51734878-f3d6-4194-97b6-0c89d050fc70",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FflS9WH5ntNfUqrM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d382e4b6-b87f-4998-bf7d-6500573b0ac3",
+              "leftValue": "={{ $json.output }}",
+              "rightValue": "=1",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        652,
+        -1220
+      ],
+      "id": "8dd7bc8c-c417-4ac9-8738-610ac2d268d6",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets1').item.json['Email ID'] }}",
+        "subject": "Congratulations! You’re Shortlisted for the Placement Drive.",
+        "emailType": "text",
+        "message": "=Dear {{ $('On form submission').item.json['Name of the student'] }},\n\nWe are pleased to inform you that you have been shortlisted for the upcoming placement drive following the evaluation of your profile and resume. \n\nA mock interview has been scheduled for Friday, 21th June 2025 at 5:00 PM. \n\nBest Regards,\nNisha Priya R,\nDT-SCD,\nSNS Institutions. ",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        -1320
+      ],
+      "id": "9ba9c455-868e-4017-9d48-20577e0432cf",
+      "name": "Gmail",
+      "webhookId": "0dbe9d0b-1140-43e0-8381-89087ef5385c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6n3etBtSxvkAZKZE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Google Sheets1').item.json['Email ID'] }}",
+        "subject": "Update on Your Placement Drive Application",
+        "emailType": "text",
+        "message": "We appreciate the time and effort you put into the application and encourage you to continue building your skills. We look forward to considering you for future opportunities.\n\nWishing you all the best in your career journey. Thank you for your interest in the upcoming placement drive. After a thorough review of your profile and resume, we regret to inform you that you have not been shortlisted for this opportunity.\n\nBest Regards,\nNisha Priya R,\nDT-SCD,\nSNS Institutions.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        860,
+        -1120
+      ],
+      "id": "0f0c00fc-06c6-4d3d-8db2-8fc8db50992a",
+      "name": "Gmail1",
+      "webhookId": "51f1ad34-09aa-4da3-b7a4-cefdc74c98c5",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "6n3etBtSxvkAZKZE",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "nisha.r.dt@snsgroups.com",
+          "mode": "list",
+          "cachedResultName": "nisha.r.dt@snsgroups.com"
+        },
+        "start": "=\n{{ $('Edit Fields1').item.json.start }}",
+        "end": "={{ $('Edit Fields1').item.json.End }}",
+        "additionalFields": {
+          "description": "Here is the Mock Interview Scheduled for the upcoming drive.",
+          "summary": "Mock Interview "
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        2064,
+        -1320
+      ],
+      "id": "cc146d2b-2231-40a9-94b5-c385cb111114",
+      "name": "Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "2zx9gdUDGv7c6anT",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        -1100
+      ],
+      "id": "d34a5161-0ca8-4920-a54c-bcb49bce818c",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FflS9WH5ntNfUqrM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Wn7gDdOpMQXOUzSJWxiIrZPOf1aEl4yWH1KUA1YrGT0",
+          "mode": "list",
+          "cachedResultName": "Placement Eligibility",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Wn7gDdOpMQXOUzSJWxiIrZPOf1aEl4yWH1KUA1YrGT0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Wn7gDdOpMQXOUzSJWxiIrZPOf1aEl4yWH1KUA1YrGT0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name of the student": "={{ $('On form submission').item.json['Name of the student'] }}",
+            "Mobile Number ": "={{ $('On form submission').item.json['Mobile Number'] }}",
+            "Email ID": "={{ $('On form submission').item.json['Email ID'] }}",
+            "College Name": "={{ $('On form submission').item.json['College Name'] }}",
+            "Resume": "={{ $('On form submission').item.json['Upload your resume'] }}",
+            "Resume Link": "={{ $('On form submission').item.json['Resume Link'] }}",
+            "LinkedIN URL": "={{ $('On form submission').item.json['LinkedIN URL'] }}",
+            "GitHub URL": "={{ $('On form submission').item.json['GitHub URL'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name of the student",
+              "displayName": "Name of the student",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mobile Number ",
+              "displayName": "Mobile Number ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email ID",
+              "displayName": "Email ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "College Name",
+              "displayName": "College Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resume",
+              "displayName": "Resume",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resume Link",
+              "displayName": "Resume Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIN URL",
+              "displayName": "LinkedIN URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GitHub URL",
+              "displayName": "GitHub URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -540,
+        -1220
+      ],
+      "id": "c793b94d-b627-4500-872b-21d7d0b769cd",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "QwLscRtd0vbyPffc",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -12,
+        -1000
+      ],
+      "id": "7e72be67-74e6-4b54-9e3e-c041ecf899df",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FflS9WH5ntNfUqrM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Give the detailed summary for the candidate based on the skillset\n\nName of the student: {{ $('On form submission').item.json['Name of the student'] }}\n\nText:{{ $('Extract from File').item.json.text }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -100,
+        -1220
+      ],
+      "id": "43b6ec63-437b-4118-980e-a19b54482abc",
+      "name": "Summarizer"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Compare the following candidate summary with the job description and return whether the skillset matches. If yes, say \"1\", else \"0\".\n\nJob Description:\n{{ $('Edit Fields').item.json['Job Description'] }}\n\nCandidate Summary:\n{{ $json.output }}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        276,
+        -1220
+      ],
+      "id": "b87493be-c453-4273-bb66-f95300fbe271",
+      "name": "Analyzer"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=As your email assistant, I can read incoming messages and automatically block your calendar if a schedule is mentioned. Please check the email content for any scheduled events and add them to my calendar accordingly.\n\nReference:\n\nEmail ID: {{ $('On form submission').item.json['Email ID'] }}\n\nThread ID: {{ $('Gmail').item.json.threadId }}\n\nStart Time: {{ $('Edit Fields1').item.json.start }}\n\nEnd Time: {{ $('Edit Fields1').item.json.End }}\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1688,
+        -1320
+      ],
+      "id": "87a53212-80e7-4cd6-9837-2876bc1d43b0",
+      "name": "Calendar Blocker"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert email parser. From the following email content, extract and return:\n\n1. Subject or main topic of the email\n2. The main message or body text\n3. The date mentioned in the email (if any)\n4. The time mentioned in the email (if any)\n\nEmail:\n{{ $('On form submission').item.json['Email ID'] }}\nDear {{ $('On form submission').item.json['Name of the student'] }},\n\nWe are pleased to inform you that you have been shortlisted for the upcoming placement drive following the evaluation of your profile and resume. \n\nA mock interview has been scheduled for Friday, 21th June 2025 at 5:00 PM. \n\nBest Regards,\nNisha Priya R,\nDT-SCD,\nSNS Institutions. \nReturn the response in JSON format as:\n{\n  \"subject\": \"\",\n  \"message\": \"\",\n  \"date\": \"\",\n  \"Start time\": \"{{ $json.start }} \"\n\"End time\": \"{{ $json.End }} \"\n}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        -1320
+      ],
+      "id": "35c646e3-95be-4fe5-abc2-2860a8f7c90c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.0-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        -1100
+      ],
+      "id": "81448348-a71c-4ab7-97dc-eca81a189147",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "FflS9WH5ntNfUqrM",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "01084137-9dfa-4fb9-bc41-d05fc5c004fe",
+              "name": "start",
+              "value": "={{ $now.set({ year: 2025, month: 6, day: 22, hour: 17, minute: 0, second: 0 }).toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "5615425d-f9f3-464d-8f0c-52fab7dce154",
+              "name": "End",
+              "value": "={{ $now.set({ year: 2025, month: 6, day: 22, hour: 18, minute: 0, second: 0 }).toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1092,
+        -1320
+      ],
+      "id": "dad51996-88cf-4f52-b29b-81829494197a",
+      "name": "Edit Fields1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyzer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calendar Blocker",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarizer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarizer": {
+      "main": [
+        [
+          {
+            "node": "Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyzer": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Blocker": {
+      "main": [
+        [
+          {
+            "node": "Google Calendar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Calendar Blocker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1488b28d-02b1-4acb-927e-22ea42432dbb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cb4c4ecfaa99576d5e7cc56a3c84e7ed9fe0a7abecc50faa36c7766a31be0959"
+  },
+  "id": "z9khGSc93DE3mT61",
+  "tags": []
+}
